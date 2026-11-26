@@ -148,7 +148,19 @@ body.locked .sens,body.locked #p-cost>:not(.ownerbar),body.locked #p-settings>:n
 .otop,.orow{display:flex;justify-content:space-between;gap:8px}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);max-width:90vw;padding:12px 18px;border-radius:9999px;background:var(--ink);color:var(--txt);border:1px solid var(--gline);font-weight:800;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:60}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-@media(max-width:900px){th,td{white-space:normal;word-break:break-word;padding:9px 5px;font-size:12px}td:first-child,th:first-child{min-width:0}.tw table input,.tw table select{min-width:0;width:100%;padding:8px 6px;font-size:14px}.tw .btn{padding:6px 10px}}
+@media(max-width:900px){th,td{white-space:normal;padding:9px 5px;font-size:12px}td:first-child,th:first-child{min-width:72px}.tw table input,.tw table select{min-width:0;width:100%;padding:8px 6px;font-size:14px}.tw .btn{padding:6px 10px}td.r,th.r{white-space:nowrap}th[colspan],td[colspan]{width:auto}}
+@media(max-width:600px){
+ .stk table,.stk tbody,.stk tr{display:block;width:100%}.stk thead{display:none}
+ .stk tr{display:grid;grid-template-columns:1fr 1fr;gap:3px 14px;padding:10px 2px;border-bottom:1px dashed var(--gline)}
+ .stk td,.stk th{display:flex;justify-content:space-between;align-items:center;gap:8px;border:0;padding:2px 0;min-width:0!important;text-align:right;background:none!important;border-radius:0!important}
+ .stk td::before,.stk th::before{content:attr(data-label);color:var(--muted);font-weight:700;text-align:left}
+ .stk td:first-child,.stk th:first-child{grid-column:1/-1;justify-content:flex-start;text-align:left;font-weight:900;font-size:13px}
+ .stk td:first-child::before,.stk th:first-child::before,.stk td[colspan]::before,.stk th[colspan]::before{content:none}
+ .stk td[colspan],.stk th[colspan]{grid-column:1/-1}
+ #offerKpis.stk tr{grid-template-columns:1fr}
+ .stk td.r,.stk th.r{white-space:normal}
+}
+@media(max-width:480px){th,td{padding:7px 3px;font-size:11px}td:first-child,th:first-child{min-width:58px}.tw table input,.tw table select{padding:6px 4px;font-size:13px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
 @media print{html,body{background:#fff!important;color:#000!important}
  .topbar,.bnav,#toast,.hero{display:none!important}
@@ -616,8 +628,18 @@ function printOffer(){
  const colors=[f.color1,f.color2,f.color3,f.colorP&&('celana '+f.colorP)].filter(Boolean).join(', ')||'-';
  const fb=db.fabrics.find(x=>x.id===f.fabricB),fc=db.fabrics.find(x=>x.id===f.fabricC);
  const fabric=[f.product!=='celana'&&fb?.name,f.product!=='baju'&&fc?.name].filter(Boolean).join(' / ');
+ const opt=(id,v)=>{const e=document.getElementById(id);const x=e&&[...e.options].find(q=>q.value===v);return x?x.text:(v||'-')};
+ const yn=v=>v==='yes'?'Ya':'Tidak';
+ const dr=[];
+ if(f.product!=='celana'){dr.push(['Rib / kerah baju',opt('f-collar',f.collar)],['Ujung lengan panjang',opt('f-cuff',f.cuff)]);if(f.armtape>0)dr.push(['Pita lengan',f.armtape+' baju'])}
+ if(f.product!=='baju'){dr.push(['Ujung kaki celana',opt('f-leg',f.leg)],['Karet pinggang',f.elastic==='yes'?'Ada':'Tidak ada']);if(f.stripes>0)dr.push(['Pita 3 garis (celana)',f.stripes+' celana'])}
+ dr.push(['Printing',f.print==='none'?'Tanpa printing':opt('f-print',f.print)+' · '+f.sheets+' lembar/pcs · '+f.designs+' desain'],['Label ukuran/merek',yn(f.label)]);
+ if(f.otheracc==='yes')dr.push(['Aksesori lainnya','Ya (1/pcs)']);
+ if(f.spQty>0)dr.push(['Special order',(f.spQty)+' pcs'+(f.spNote?' — '+f.spNote:'')]);
+ const detRows=[];for(let i=0;i<dr.length;i+=2){const a=dr[i],b=dr[i+1];detRows.push(`<tr><th>${esc(a[0])}</th><td>${esc(String(a[1]))}</td>${b?`<th>${esc(b[0])}</th><td>${esc(String(b[1]))}</td>`:'<td colspan="2"></td>'}</tr>`)}
+ const det=`<div class="cap" style="text-align:left;margin-top:4px">Detail model &amp; variasi (acuan penjahit)</div><table style="table-layout:fixed"><colgroup><col style="width:21%"><col style="width:29%"><col style="width:21%"><col style="width:29%"></colgroup>${detRows.join('')}</table>`;
  const w=window.open('','_blank');if(!w){alert('Izinkan pop-up untuk mencetak.');return}
- w.document.write(`<!doctype html><meta charset="utf-8"><title>Penawaran ${esc(f.code)}</title><style>@page{size:A4 portrait;margin:8mm 10mm}html,body{margin:0;padding:0}body{font:11px/1.35 system-ui,sans-serif;color:#172238}table{border-collapse:collapse;width:100%;margin:5px 0}td,th{border:1px solid #cfd8e3;padding:3px 6px;text-align:left}th{background:#f1f5f9}h1{margin:0 0 4px;font-size:18px}p{margin:4px 0}img{max-width:100%;max-height:135px;object-fit:contain}.top{display:flex;gap:12px;align-items:flex-start}.tl2{flex:1;min-width:0}.tr2{width:36%;flex:none}.cap{font-size:10px;font-weight:700;margin-bottom:3px;text-align:center}.imgbox{border:1px solid #cfd8e3;padding:4px;text-align:center}.r{text-align:right}@media screen{body{max-width:720px;margin:20px auto;padding:0 16px}}</style><div class="top"><div class="tl2"><h1>PENAWARAN HARGA</h1><p>No. ${esc(f.code)} &nbsp;|&nbsp; Tanggal ${esc(f.date)}<br>Kepada: <b>${esc(f.customer||'-')}</b> (${esc(f.group)})</p><table><tr><th>Produk</th><td>${prod}</td></tr><tr><th>Bahan</th><td>${esc(fabric)}</td></tr><tr><th>Warna</th><td>${esc(colors)}</td></tr><tr><th>Catatan model</th><td>${esc(f.extra||'-')}</td></tr></table></div>${f.design?`<div class="tr2"><div class="cap">Desain yang disepakati</div><div class="imgbox"><img src="${f.design}" alt="Desain"></div></div>`:''}</div><table><tr><th>Ukuran</th><th>Lengan pendek</th><th>Lengan panjang</th><th>Jumlah</th></tr>${sizeRows}${f.spQty>0?`<tr><td colspan="3">Special order ${esc(f.spNote||'')}</td><td>${f.spQty}</td></tr>`:''}<tr><th colspan="3">Total</th><th>${c.units}</th></tr></table><table><tr><th>Ukuran</th><th>Jumlah</th><th class="r">Harga per ${f.product==='setelan'?'set':'pcs'}</th><th class="r">Subtotal</th></tr>${c.lines.map(l=>`<tr><td>${esc(l.size)}${l.type?' — '+esc(l.type):''}</td><td>${l.qty}</td><td class="r">${rp(l.used)}</td><td class="r">${rp(l.used*l.qty)}</td></tr>`).join('')}</table><table><tr><th>Total harga</th><td class="r"><b>${rp(c.total)}</b></td></tr><tr><th>DP</th><td class="r">${rp(c.dp)}</td></tr><tr><th>Sisa pelunasan</th><td class="r">${rp(c.balance)}</td></tr></table><p style="font-size:12px;color:#64748b">Harga dapat berubah jika jumlah, ukuran, bahan, atau desain berubah.</p>`);
+ w.document.write(`<!doctype html><meta charset="utf-8"><title>Penawaran ${esc(f.code)}</title><style>@page{size:A4 portrait;margin:8mm 10mm}html,body{margin:0;padding:0}body{font:11px/1.35 system-ui,sans-serif;color:#172238}table{border-collapse:collapse;width:100%;margin:5px 0}td,th{border:1px solid #cfd8e3;padding:3px 6px;text-align:left}th{background:#f1f5f9}h1{margin:0 0 4px;font-size:18px}p{margin:4px 0}img{max-width:100%;max-height:135px;object-fit:contain}.top{display:flex;gap:12px;align-items:flex-start}.tl2{flex:1;min-width:0}.tr2{width:36%;flex:none}.cap{font-size:10px;font-weight:700;margin-bottom:3px;text-align:center}.imgbox{border:1px solid #cfd8e3;padding:4px;text-align:center}.r{text-align:right}@media screen{body{max-width:720px;margin:20px auto;padding:0 16px}}</style><div class="top"><div class="tl2"><h1>PENAWARAN HARGA</h1><p>No. ${esc(f.code)} &nbsp;|&nbsp; Tanggal ${esc(f.date)}<br>Kepada: <b>${esc(f.customer||'-')}</b> (${esc(f.group)})</p><table><tr><th>Produk</th><td>${prod}</td></tr><tr><th>Bahan</th><td>${esc(fabric)}</td></tr><tr><th>Warna</th><td>${esc(colors)}</td></tr><tr><th>Catatan model</th><td>${esc(f.extra||'-')}</td></tr></table></div>${f.design?`<div class="tr2"><div class="cap">Desain yang disepakati</div><div class="imgbox"><img src="${f.design}" alt="Desain"></div></div>`:''}</div>${det}<table><tr><th>Ukuran</th><th>Lengan pendek</th><th>Lengan panjang</th><th>Jumlah</th></tr>${sizeRows}${f.spQty>0?`<tr><td colspan="3">Special order ${esc(f.spNote||'')}</td><td>${f.spQty}</td></tr>`:''}<tr><th colspan="3">Total</th><th>${c.units}</th></tr></table><table><tr><th>Ukuran</th><th>Jumlah</th><th class="r">Harga per ${f.product==='setelan'?'set':'pcs'}</th><th class="r">Subtotal</th></tr>${c.lines.map(l=>`<tr><td>${esc(l.size)}${l.type?' — '+esc(l.type):''}</td><td>${l.qty}</td><td class="r">${rp(l.used)}</td><td class="r">${rp(l.used*l.qty)}</td></tr>`).join('')}</table><table><tr><th>Total harga</th><td class="r"><b>${rp(c.total)}</b></td></tr><tr><th>DP</th><td class="r">${rp(c.dp)}</td></tr><tr><th>Sisa pelunasan</th><td class="r">${rp(c.balance)}</td></tr></table><p style="font-size:12px;color:#64748b">Harga dapat berubah jika jumlah, ukuran, bahan, atau desain berubah.</p>`);
  w.document.close();w.focus();const im=w.document.querySelector('img'),pr=()=>{try{const b=w.document.body,avail=140*96/25.4;b.style.zoom=1;const h=b.scrollHeight;if(h>avail)b.style.zoom=Math.max(0.5,avail/h)}catch(e){}w.print()};if(im&&!im.complete){im.onload=pr;im.onerror=pr}else setTimeout(pr,200);
 }
 function backupData(){const b=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='konveksi-cost-pro-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)}
@@ -657,6 +679,12 @@ function pwaUI(){const b=$('btnInstall'),h=$('iosHint'),x=$('pwaBox');if(!b)retu
 function installApp(){if(!dip)return;dip.prompt();dip.userChoice.then(()=>{dip=null;pwaUI()})}
 if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 document.addEventListener('DOMContentLoaded',()=>{fixNum();renderLock()});
+(function(){const ids=['fabricTable','sizePriceTable','offerKpis'];
+ function lab(el){el.classList.add('stk');el.querySelectorAll('table').forEach(t=>{const h=[...t.querySelectorAll('thead th')].map(x=>x.textContent.trim());t.querySelectorAll('tbody tr').forEach(r=>{[...r.children].forEach((c,i)=>{if(!c.hasAttribute('colspan'))c.dataset.label=h[i]||''})})})}
+ document.addEventListener('DOMContentLoaded',()=>ids.forEach(id=>{const el=$(id);if(!el)return;lab(el);new MutationObserver(()=>lab(el)).observe(el,{childList:true})}));
+ document.addEventListener('DOMContentLoaded',()=>{const tb=$('fabricSet');if(!tb)return;const el=tb.closest('.tw');lab(el);new MutationObserver(()=>lab(el)).observe(tb,{childList:true})});
+})();
+
 </script>
 <div id="cropModal" role="dialog" aria-modal="true" aria-label="Potong gambar">
  <div class="ct">Potong gambar</div><div class="cs">Geser kotak atau tarik titik sudut/sisi untuk memilih bagian yang dipakai</div>
