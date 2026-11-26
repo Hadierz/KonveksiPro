@@ -16,7 +16,12 @@
  --in:inset 6px 6px 12px rgba(150,45,80,.28),inset -6px -6px 14px rgba(20,0,8,.38);
  --press:inset 5px 5px 11px rgba(20,0,8,.5),inset -5px -5px 10px rgba(140,40,75,.25);
  --fpress:inset 3px 3px 8px rgba(80,0,31,.22),inset -3px -3px 8px rgba(255,255,255,.95)}
+*,*::before,*::after{box-sizing:border-box}
 *{-webkit-tap-highlight-color:transparent}
+html,body{max-width:100%;overflow-x:hidden}
+.grid>*,.field{min-width:0}
+input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;display:block;min-height:50px}
+.totbox{margin-top:14px;max-width:320px}
 html{scroll-behavior:smooth}
 body{margin:0;color:var(--txt);font-family:Nunito,ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.55;min-height:100svh;
  background:radial-gradient(900px 600px at 100% 100%,rgba(130,28,64,.55),transparent 70%),radial-gradient(800px 500px at 0% 40%,rgba(105,10,45,.7),transparent 70%),var(--bg);background-attachment:fixed}
@@ -143,6 +148,7 @@ body.locked .sens,body.locked #p-cost>:not(.ownerbar),body.locked #p-settings>:n
 .otop,.orow{display:flex;justify-content:space-between;gap:8px}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);max-width:90vw;padding:12px 18px;border-radius:9999px;background:var(--ink);color:var(--txt);border:1px solid var(--gline);font-weight:800;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:60}
 #toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:900px){th,td{white-space:normal;word-break:break-word;padding:9px 5px;font-size:12px}td:first-child,th:first-child{min-width:0}.tw table input,.tw table select{min-width:0;width:100%;padding:8px 6px;font-size:14px}.tw .btn{padding:6px 10px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
 @media print{html,body{background:#fff!important;color:#000!important}
  .topbar,.bnav,#toast,.hero{display:none!important}
@@ -160,18 +166,18 @@ body.locked .sens,body.locked #p-cost>:not(.ownerbar),body.locked #p-settings>:n
 <section class="panel active" id="p-input">
  <div class="card"><h2>Panggil order lama</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><input class="cell" style="flex:1;min-width:220px" id="searchOrder" list="orderList" placeholder="Ketik no. order (mis. 001) atau nama pemesan" autocomplete="off"><datalist id="orderList"></datalist><button class="btn primary" onclick="searchOrder()">Buka</button></div><p class="sub" style="margin:8px 0 0">Order yang sudah disimpan akan dimuat kembali ke form ini. Jika ada beberapa yang cocok, daftarnya ditampilkan di tab Order Tersimpan.</p></div>
  <div class="card"><h2>Informasi pesanan</h2><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-  <div class="field"><label>No. orderan</label><input id="f-code"></div>
   <div class="field"><label>Tanggal order</label><input id="f-date" type="date"></div>
+  <div class="field"><label>No. orderan</label><input id="f-code"></div>
   <div class="field"><label>Nama / instansi / club / tim *</label><input id="f-customer" placeholder="Nama pelanggan"></div>
-  <div class="field"><label>Jumlah orderan (pcs/pasang)</label><input id="f-total" readonly><small id="f-total-unit">Otomatis dari rincian ukuran</small></div>
-  <div class="field"><label>DP (Rp)</label><input id="f-dp" type="number" min="0" value="0"></div>
   <div class="field"><label>Tingkat</label><select id="f-group"><option>TK / PAUD</option><option>SD</option><option>SMP</option><option>SMA</option><option>Dewasa</option></select></div>
   <div class="field"><label>Jenis produk</label><select id="f-product"><option value="baju">Baju saja</option><option value="celana">Celana saja</option><option value="setelan" selected>Setelan baju + celana</option></select></div>
+  <div class="field"><label>DP (Rp)</label><input id="f-dp" type="number" min="0" value="0"></div>
  </div></div>
 
  <div class="card"><h2>Ukuran dan model lengan</h2>
   <div class="size h"><span>Ukuran</span><span>Lengan pendek</span><span>Lengan panjang</span><span>Total</span></div>
   <div id="sizes"></div>
+  <div class="field totbox"><label>Jumlah orderan (pcs/pasang)</label><input id="f-total" readonly><small id="f-total-unit">Otomatis dari rincian ukuran</small></div>
   <p class="sub">Isi jumlah per model lengan; total dihitung otomatis. Untuk celana saja isi salah satu kolom. Ukuran yang tidak ada pada tingkat terpilih dinonaktifkan.</p>
  </div>
 
